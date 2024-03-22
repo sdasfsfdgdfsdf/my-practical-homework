@@ -1,0 +1,101 @@
+﻿赫夫曼编码（综合性实验）
+1. 需求分析
+需求：
+设某编码系统共有n个字符，使用频率分别为w1, w2, …, wn，设计一个不等长的编码方案，使得该编码系统的空间效率最好。
+基本要求：
+一个完整的系统应具有以下功能。
+(1) I：初始化（Initialization）。从终端读入字符集大小n，以及n个字符和n个权值，建立赫夫曼树，并将它存于文件hfmTree中。
+(2) E：编码（Encoding）。利用已建好的赫夫曼树对文件ToBeTran中的正文进行编码，然后将结果存入文件CodeFile中。
+(3) D：译码（Decoding）。利用已建好的赫夫曼树将文件CodeFile中的代码进行译码，结果存入文件TextFile中。
+(4) P：打印代码文件（Print）。将文件CodeFile以紧凑格式显示在终端上，每行50个字符。同时将此字符形式的编码文件写入文件CodePrint中。
+(5) T：打印赫夫曼树（Tree printing）。将已在内存中的赫夫曼树以直观的方式显示在终端上，同时将此字符形式的赫夫曼树写入文件TreePrint中。
+测试数据
+由读者依据软件工程的测试技术自己确定。注意测试边界数据。
+实现提示
+利用赫夫曼编码树求得 佳的编码方案。
+(1) 文件 CodeFile 的基类型可以设为字节型。
+(2) 用户界面可以设计为“菜单”方式，除显示上述功能符号外，还应显示“Q”（Quit），表示退出运行。请用户键入一个选择功能符。此功能执行完毕后再显示此菜单，直至某次用户选择了“E” 为止。在程序的一次执行过程中，第一次执行 I、D 或 C 命令之后，赫夫曼树已经在内存了，不必再读入。每次执行时不一定执行 I 命令，因为文件 hfmTree 可能早已建好。
+————————————————
+版权声明：本文为CSDN博主「新参者-tangent」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/weixin_51877075/article/details/120614578
+ADT BinaryTree{
+    数据对象D：D是具有相同特性的数据元素的集合
+    数据关系R：
+      若D = Φ,则R = Φ，称BinaryTree为空二叉树
+      若D ≠ Φ,则R = {H}，H有如下二元关系：
+        （1）在D中存在唯一的称为根的数据元素root,它在关系H下无前驱；
+        （2）若D-{root} ≠ Φ,则存在D - {root} = {Dl,Dr},且Dl ∩ Dr = Φ；
+        （3）若Dl ≠ Φ,则Dl中存在唯一的元素xl，<root,xl>∈H,且存在Dl上的关系Hl⊂H；
+             若Dr ≠ Φ,则Dr中存在唯一的元素xr，<root,xr>∈H,且存在Dr上的关系Hr⊂H；
+             H = {<root,xl>，<root,xr>，Hl,Hr}；
+        （4）(Dl,{Hl})是一棵符合本定义的二叉树，称为根的左子树，
+             (Dr,{Hr})是一棵符合本定义的二叉树，称为根的右子树；
+
+typedef struct{
+	int weigth;      //权值 
+	int parent;      //父母 
+	int lchild;      //左儿子 
+	int rchild;      //右儿子 
+}HTNode,*HuffmanTree;   //哈夫曼树结构
+
+    基本操作P:
+     InitBiTree(&T);
+        操作结果:构造空的二叉树T。
+     DestoryBiTree(&T);
+        初始条件:二叉树T存在。
+        操作结构:销毁二叉树T。
+     CreateBiTree(&T,definition);
+        初始条件:definition给出二叉树T的定义。
+        操作结果:按definition构造二叉树T。
+     ClearBiTree(&T);
+        初始条件:二叉树T存在。
+        操作结果:将二叉树清为空树。
+     BiTreeEmpty(T);
+        初始条件:二叉树T存在。
+        操作结果:若T为空二叉树，返回TRUE，否则返回FALSE。
+     BiTreeDepth(T);
+        初始条件:二叉树T存在。
+        操作结果:返回T的深度。
+     Root(T);
+        初始条件:二叉树T的根存在。
+        操作结果:返回T的根。
+     Value(T,e);
+        初始条件:二叉树T存在，e是T中某个结点。
+        操作结果:返回e的值。
+     Assign(T,&e,value);
+        初始条件:二叉树T存在，e是T中的某个结点。
+        操作结果:结点e赋值为value。
+     Parent(T,e);
+        初始条件:二叉树T存在，e是T中的结点。
+        操作结果:若e是T的非根结点，则返回它的双亲，否则返回"空"。
+     LeftChild(T,e);
+        初始条件:二叉树T存在，e是T中的某个结点。
+        操作结果:返回e的左孩子。若e无左孩子，则返回"空"。
+     RightChild(T,e);
+        初始条件:二叉树T存在，e是T中的某个结点。
+        操作结果:返回e的右孩子。若e无右孩子，则返回"空"。
+     LeftSibling(T,e);
+        初始条件:二叉树T存在，e是T中的某个结点。
+        操作结果:返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回"空"。
+     RightSibling(T,e);
+        初始条件:二叉树T存在，e是T中的某个结点。
+        操作结果:返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回"空"。
+     InsertChild(T,p,LR,c);
+        初始条件:二叉树T存在，p指向T中的某个结点，LR为0或1，非空二叉树c与T不想交且右子树为空。
+        操作结果:根据LR为0或1，插入c为T中p所指结点的左或右子树。p所指结点的原有左或右子树则成为c的右子树。
+     DeleteChile(T,p,LR);
+        初始条件:二叉树T存在，p指向T中的某个结点，LR为0或1.
+        操作结果:根据LR为0或1，删除T中p所指结点的左或右子树。
+     PreOrderTraverse(T,visit());
+        初始条件:二叉树T存在，visit()是对结点操作的应用函数。
+        操作结果:先序遍历T，对每个结点调用函数visit一次且仅一次。一旦visit失败，则操作失败。
+     InOrderTraverse(T,visit());
+        初始条件:二叉树T存在，visit()是对结点操作的应用函数。
+        操作结果:中序遍历T，对每个结点调用函数visit一次且仅一次。一旦visit失败，则操作失败。
+     PostOrderTraverse(T,visit());
+        初始条件:二叉树T存在，visit()是对结点操作的应用函数。
+        操作结果:后序遍历T，对每个结点调用函数visit一次且仅一次。一旦visit失败，则操作失败。
+     LevelOrderTraverse(T,visit());
+        初始条件:二叉树T存在，visit()是对结点操作的应用函数。
+        操作结果:层序遍历T，对每个结点调用函数visit一次仅且一次。一旦visit失败，则操作失败。
+}ADT BinaryTree
